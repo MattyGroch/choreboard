@@ -2,6 +2,8 @@
 FROM node:20-alpine AS builder
 WORKDIR /app
 
+RUN apk add --no-cache openssl
+
 # Install server deps
 COPY server/package*.json ./server/
 RUN cd server && npm ci
@@ -23,6 +25,8 @@ RUN cd server && npx prisma generate && npm run build
 # ── Production stage ──────────────────────────────────────────────────────────
 FROM node:20-alpine AS production
 WORKDIR /app
+
+RUN apk add --no-cache openssl
 
 ENV NODE_ENV=production
 
