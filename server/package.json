@@ -1,0 +1,44 @@
+{
+  "name": "choreboard-server",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "nodemon --watch src --ext ts --exec ts-node -r tsconfig-paths/register src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "db:migrate": "prisma migrate deploy",
+    "db:migrate:dev": "prisma migrate dev",
+    "db:generate": "prisma generate",
+    "db:seed": "ts-node prisma/seed.ts",
+    "db:studio": "prisma studio"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.22.0",
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "date-fns": "^3.6.0",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
+    "jsonwebtoken": "^9.0.2",
+    "node-cron": "^3.0.3",
+    "zod": "^3.23.8"
+  },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/cookie-parser": "^1.4.7",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/jsonwebtoken": "^9.0.7",
+    "@types/node": "^22.9.0",
+    "@types/node-cron": "^3.0.11",
+    "nodemon": "^3.1.7",
+    "prisma": "^5.22.0",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.6.3"
+  }
+}

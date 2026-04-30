@@ -1,0 +1,208 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+// npx prisma db seed
+// (or: npm run db:seed)
+// Config lives in server/package.json under "prisma.seed"
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ── Users & Auth ──────────────────────────────────────────────────────────────
+
+model User {
+  id           Int      @id @default(autoincrement())
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         Role     @default(PARENT)
+  createdAt    DateTime @default(now())
+}
+
+enum Role {
+  PARENT
+}
+
+// ── Children ──────────────────────────────────────────────────────────────────
+
+model Child {
+  id            Int                @id @default(autoincrement())
+  name          String
+  avatarEmoji   String
+  pin           String?
+  pointBalance  Int                @default(0)
+  weekStreak    Int                @default(0)
+  baseAllowance Int
+  createdAt     DateTime           @default(now())
+
+  assignments   ChoreAssignment[]
+  bountyClaims  BountyClaim[]
+  prizeRequests PrizeRequest[]
+  transactions  PointTransaction[]
+}
+
+// ── Chore Templates & Instances ───────────────────────────────────────────────
+
+model ChoreTemplate {
+  id               Int      @id @default(autoincrement())
+  name             String
+  description      String?
+  penaltyValue     Int
+  isRecurring      Boolean  @default(true)
+  recurrenceDays   Int[]
+  isShared         Boolean  @default(false)
+  assignedChildIds Int[]
+  isActive         Boolean  @default(true)
+  createdAt        DateTime @default(now())
+
+  chores Chore[]
+}
+
+model Chore {
+  id           Int             @id @default(autoincrement())
+  templateId   Int?
+  template     ChoreTemplate?  @relation(fields: [templateId], references: [id], onDelete: SetNull)
+  name         String
+  description  String?
+  penaltyValue Int
+  isShared     Boolean         @default(false)
+  dueDate      DateTime
+  status       ChoreStatus     @default(OPEN)
+  createdAt    DateTime        @default(now())
+
+  assignments ChoreAssignment[]
+}
+
+enum ChoreStatus {
+  OPEN
+  COMPLETE
+  SKIPPED
+}
+
+model ChoreAssignment {
+  id          Int       @id @default(autoincrement())
+  choreId     Int
+  chore       Chore     @relation(fields: [choreId], references: [id], onDelete: Cascade)
+  childId     Int
+  child       Child     @relation(fields: [childId], references: [id], onDelete: Cascade)
+  completedAt DateTime?
+  approvedAt  DateTime?
+
+  @@unique([choreId, childId])
+}
+
+// ── Bounty Templates & Instances ─────────────────────────────────────────────
+
+model BountyTemplate {
+  id                  Int              @id @default(autoincrement())
+  name                String
+  description         String?
+  pointValue          Int
+  maxClaims           Int?
+  recurrence          BountyRecurrence @default(NONE)
+  recurrenceDayOfWeek Int?
+  isActive            Boolean          @default(true)
+  createdAt           DateTime         @default(now())
+
+  bounties Bounty[]
+}
+
+enum BountyRecurrence {
+  NONE
+  DAILY
+  WEEKLY
+}
+
+model Bounty {
+  id          Int             @id @default(autoincrement())
+  templateId  Int?
+  template    BountyTemplate? @relation(fields: [templateId], references: [id], onDelete: SetNull)
+  name        String
+  description String?
+  pointValue  Int
+  maxClaims   Int?
+  expiresAt   DateTime?
+  createdAt   DateTime        @default(now())
+
+  claims BountyClaim[]
+}
+
+model BountyClaim {
+  id          Int               @id @default(autoincrement())
+  bountyId    Int
+  bounty      Bounty            @relation(fields: [bountyId], references: [id], onDelete: Cascade)
+  childId     Int
+  child       Child             @relation(fields: [childId], references: [id], onDelete: Cascade)
+  status      BountyClaimStatus @default(CLAIMED)
+  claimedAt   DateTime          @default(now())
+  completedAt DateTime?
+  approvedAt  DateTime?
+}
+
+enum BountyClaimStatus {
+  CLAIMED
+  COMPLETE
+  APPROVED
+  CANCELLED
+}
+
+// ── Prizes & Requests ────────────────────────────────────────────────────────
+
+model Prize {
+  id          Int            @id @default(autoincrement())
+  name        String
+  description String?
+  pointCost   Int
+  imageUrl    String?
+  isActive    Boolean        @default(true)
+  createdAt   DateTime       @default(now())
+
+  requests PrizeRequest[]
+}
+
+model PrizeRequest {
+  id          Int                @id @default(autoincrement())
+  childId     Int
+  child       Child              @relation(fields: [childId], references: [id], onDelete: Cascade)
+  prizeId     Int
+  prize       Prize              @relation(fields: [prizeId], references: [id], onDelete: Cascade)
+  status      PrizeRequestStatus @default(PENDING)
+  requestedAt DateTime           @default(now())
+  givenAt     DateTime?
+}
+
+enum PrizeRequestStatus {
+  PENDING
+  GIVEN
+  CANCELLED
+}
+
+// ── Transactions & Settings ───────────────────────────────────────────────────
+
+model PointTransaction {
+  id          Int             @id @default(autoincrement())
+  childId     Int
+  child       Child           @relation(fields: [childId], references: [id], onDelete: Cascade)
+  amount      Int
+  type        TransactionType
+  referenceId Int?
+  note        String?
+  createdAt   DateTime        @default(now())
+}
+
+enum TransactionType {
+  ALLOWANCE
+  BOUNTY
+  PRIZE
+  MANUAL
+  PENALTY
+}
+
+model AppSettings {
+  id                      Int     @id @default(1)
+  weekStartDay            Int     @default(0)
+  penaltyDeductionEnabled Boolean @default(true)
+}

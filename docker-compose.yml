@@ -1,0 +1,37 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: choreboard
+      POSTGRES_PASSWORD: choreboard
+      POSTGRES_DB: choreboard
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U choreboard']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file: .env
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://choreboard:choreboard@db:5432/choreboard
+    ports:
+      - '3001:3001'
+    restart: unless-stopped
+    # Traefik labels — uncomment and adjust for your setup:
+    # labels:
+    #   - 'traefik.enable=true'
+    #   - 'traefik.http.routers.choreboard.rule=Host(`choreboard.example.com`)'
+    #   - 'traefik.http.routers.choreboard.entrypoints=websecure'
+    #   - 'traefik.http.routers.choreboard.tls.certresolver=letsencrypt'
+    #   - 'traefik.http.services.choreboard.loadbalancer.server.port=3001'
+
+volumes:
+  db_data:
