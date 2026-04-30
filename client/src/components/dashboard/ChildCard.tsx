@@ -33,15 +33,16 @@ interface Props {
   allChores: Chore[];
 }
 
-const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-function formatDay(dateStr: string) {
-  const d = new Date(dateStr);
-  return DAY_LABELS[d.getUTCDay()];
+function todayUTCPrefix() {
+  const d = new Date();
+  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}-${String(d.getUTCDate()).padStart(2, '0')}`;
 }
 
 export default function ChildCard({ child, allChores }: Props) {
+  const today = todayUTCPrefix();
   const myChores = allChores.filter((c) =>
+    c.dueDate.startsWith(today) &&
     c.assignments.some((a) => a.childId === child.id)
   );
 
@@ -112,9 +113,6 @@ export default function ChildCard({ child, allChores }: Props) {
                 {chore.isShared && (
                   <span className="text-xs text-slate-500 flex-shrink-0">shared</span>
                 )}
-                <span className="text-xs text-slate-500 flex-shrink-0 ml-auto">
-                  {formatDay(chore.dueDate)}
-                </span>
               </div>
             );
           })}
