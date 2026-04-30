@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { CheckCircle2, SkipForward, Plus, ChevronLeft, ChevronRight, Pencil, Check, X } from 'lucide-react';
+import { CheckCircle2, SkipForward, ChevronLeft, ChevronRight, Pencil, Check } from 'lucide-react';
 import api from '../../lib/api';
 import clsx from 'clsx';
 

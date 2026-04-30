@@ -1,4 +1,8 @@
-import axios from 'axios';
+import axios, { InternalAxiosRequestConfig } from 'axios';
+
+interface RetryConfig extends InternalAxiosRequestConfig {
+  _retry?: boolean;
+}
 
 const api = axios.create({
   baseURL: '/api',
@@ -16,8 +20,8 @@ function processQueue(error: unknown) {
 api.interceptors.response.use(
   (res) => res,
   async (error) => {
-    const original = error.config;
-    if (error.response?.status === 401 && !original._retry && original.url !== '/auth/refresh') {
+    const original = error.config as RetryConfig | undefined;
+    if (original && error.response?.status === 401 && !original._retry && original.url !== '/auth/refresh') {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({
