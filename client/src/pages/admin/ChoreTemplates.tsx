@@ -37,7 +37,7 @@ function TemplateForm({
   const [name, setName] = useState(initial?.name ?? '');
   const [description, setDescription] = useState(initial?.description ?? '');
   const [penaltyValue, setPenaltyValue] = useState(String(initial?.penaltyValue ?? 0));
-  const [isRecurring, setIsRecurring] = useState(initial?.isRecurring ?? true);
+  const isRecurring = initial?.isRecurring ?? true;
   const [recurrenceDays, setRecurrenceDays] = useState<number[]>(initial?.recurrenceDays ?? []);
   const [isShared, setIsShared] = useState(initial?.isShared ?? false);
   const [assignedChildIds, setAssignedChildIds] = useState<number[]>(initial?.assignedChildIds ?? []);
