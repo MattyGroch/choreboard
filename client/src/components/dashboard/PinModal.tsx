@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X, Delete } from 'lucide-react';
 import clsx from 'clsx';
 
@@ -19,13 +19,24 @@ interface Props {
 }
 
 export default function PinModal({ title, subtitle, children, onConfirm, onClose }: Props) {
-  const [step, setStep] = useState<'select' | 'pin'>('select');
-  const [selected, setSelected] = useState<Child | null>(null);
+  const single = children.length === 1 ? children[0] : null;
+  const [step, setStep] = useState<'select' | 'pin'>(
+    single?.pin != null ? 'pin' : 'select'
+  );
+  const [selected, setSelected] = useState<Child | null>(single ?? null);
   const [pin, setPin] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const needsPin = selected?.pin != null;
+
+  // Single child with no PIN — auto-submit immediately
+  useEffect(() => {
+    if (single && single.pin == null) {
+      handleSubmit(single, undefined);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleSelectChild = (child: Child) => {
     setSelected(child);
