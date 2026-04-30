@@ -36,9 +36,23 @@ router.post('/', async (req, res, next) => {
       throw new AppError(400, 'Bounty is full');
     }
 
-    const claim = await prisma.bountyClaim.create({
-      data: { bountyId, childId },
-    });
+    const [claim] = await prisma.$transaction([
+      prisma.bountyClaim.create({
+        data: { bountyId, childId, status: 'APPROVED', claimedAt: now, completedAt: now, approvedAt: now },
+      }),
+      prisma.child.update({
+        where: { id: childId },
+        data: { pointBalance: { increment: bounty.pointValue } },
+      }),
+      prisma.pointTransaction.create({
+        data: {
+          childId,
+          amount: bounty.pointValue,
+          type: 'BOUNTY',
+          note: `Bounty: ${bounty.name}`,
+        },
+      }),
+    ]);
 
     res.status(201).json(claim);
   } catch (err) {

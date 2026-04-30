@@ -31,6 +31,7 @@ router.get('/', async (_req, res, next) => {
     const children = await prisma.child.findMany({
       select: {
         ...safeSelect,
+        pin: true,
         prizeRequests: {
           where: { status: 'PENDING' },
           select: { id: true },
@@ -49,6 +50,7 @@ router.get('/', async (_req, res, next) => {
         baseAllowance: c.baseAllowance,
         createdAt: c.createdAt,
         pendingPrizeCount: c.prizeRequests.length,
+        hasPin: c.pin !== null,
       }))
     );
   } catch (err) {

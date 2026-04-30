@@ -65,8 +65,8 @@ export default function Settings() {
               }`}
             >
               <span
-                className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${
-                  settings.penaltyDeductionEnabled ? 'translate-x-7' : 'translate-x-1'
+                className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${
+                  settings.penaltyDeductionEnabled ? 'left-7' : 'left-1'
                 }`}
               />
             </button>

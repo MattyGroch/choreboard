@@ -83,6 +83,7 @@ export default function Dashboard() {
             pointBalance: number;
             weekStreak: number;
             pendingPrizeCount: number;
+            hasPin: boolean;
           }) => (
             <ChildCard key={child.id} child={child} allChores={chores} />
           )

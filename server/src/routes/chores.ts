@@ -96,6 +96,30 @@ router.patch('/:id', requireAuth, async (req, res, next) => {
   }
 });
 
+// Public — child marks their own assignment done (PIN validated)
+router.patch('/assignments/:assignmentId/complete', async (req, res, next) => {
+  try {
+    const schema = z.object({ pin: z.string().optional() });
+    const { pin } = schema.parse(req.body);
+
+    const assignment = await prisma.choreAssignment.findUnique({
+      where: { id: Number(req.params.assignmentId) },
+      include: { child: true },
+    });
+    if (!assignment) throw new AppError(404, 'Assignment not found');
+    if (assignment.completedAt) throw new AppError(400, 'Already marked done');
+    if (assignment.child.pin && assignment.child.pin !== pin) throw new AppError(403, 'Invalid PIN');
+
+    const updated = await prisma.choreAssignment.update({
+      where: { id: assignment.id },
+      data: { completedAt: new Date() },
+    });
+    res.json(updated);
+  } catch (err) {
+    next(err);
+  }
+});
+
 router.patch('/:id/approve', requireAuth, async (req, res, next) => {
   try {
     const choreId = Number(req.params.id);

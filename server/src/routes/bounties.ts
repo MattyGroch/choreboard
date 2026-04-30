@@ -19,7 +19,10 @@ router.get('/', async (_req, res, next) => {
     const now = new Date();
     const bounties = await prisma.bounty.findMany({
       where: {
-        OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
+        AND: [
+          { OR: [{ expiresAt: null }, { expiresAt: { gt: now } }] },
+          { OR: [{ templateId: null }, { template: { isActive: true } }] },
+        ],
       },
       include: claimsInclude,
       orderBy: { createdAt: 'desc' },
