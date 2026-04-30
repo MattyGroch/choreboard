@@ -19,3 +19,6 @@ Thumbs.db
 prisma/migrations/
 **/prisma/migrations/
 *.db
+
+# Claude
+*.claude/
