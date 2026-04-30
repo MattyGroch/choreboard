@@ -18,12 +18,15 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    env_file: .env
     environment:
       NODE_ENV: production
       DATABASE_URL: postgresql://choreboard:choreboard@db:5432/choreboard
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
+      PORT: ${PORT:-3001}
+      CLIENT_URL: ${CLIENT_URL:-http://localhost:3001}
     ports:
-      - '3001:3001'
+      - '${PORT:-3001}:${PORT:-3001}'
     restart: unless-stopped
     # Traefik labels — uncomment and adjust for your setup:
     # labels:
